@@ -4,9 +4,10 @@ NEW  := MMult0
 # sample makefile
 #
 
-CC         := gcc
+# CC         := gcc
+CC		   :=aarch64-unknown-nto-qnx7.0.0-gcc
 LINKER     := $(CC)
-CFLAGS     := -O2 -Wall -msse3
+CFLAGS     := -O2 -Wall -ftree-vectorize -ffast-math 
 LDFLAGS    := -lm
 
 UTIL       := copy_matrix.o \
@@ -14,6 +15,9 @@ UTIL       := copy_matrix.o \
               random_matrix.o \
               dclock.o \
               REF_MMult.o \
+			  qnx_lib.o \
+			  armpmu_lib.o \
+			  pmu_api.o \
               print_matrix.o
 
 TEST_OBJS  := test_MMult.o $(NEW).o 
@@ -25,9 +29,9 @@ TEST_OBJS  := test_MMult.o $(NEW).o
 
 all: 
 	make clean;
-	make test_MMult.x
+	make test_$(NEW).x
 
-test_MMult.x: $(TEST_OBJS) $(UTIL) parameters.h
+test_$(NEW).x: $(TEST_OBJS) $(UTIL) parameters.h
 	$(LINKER) $(TEST_OBJS) $(UTIL) $(LDFLAGS) \
         $(BLAS_LIB) -o $(TEST_BIN) $@ 
 
