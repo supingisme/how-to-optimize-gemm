@@ -1,12 +1,13 @@
 OLD  := MMult_1x4_9
-NEW  := MMult_4x4_9
+NEW  := MMult_4x4_10
 #
 # sample makefile
 #
 
-CC         := gcc
+# CC         := gcc
+CC         := aarch64-unknown-nto-qnx7.0.0-gcc
 LINKER     := $(CC)
-CFLAGS     := -O2 -Wall -msse3
+CFLAGS     := -O3 -Wall 
 LDFLAGS    := -lm
 
 UTIL       := copy_matrix.o \
