@@ -1,5 +1,5 @@
 OLD  := MMult_1x4_9
-NEW  := MMult_4x4_11
+NEW  := MMult_4x4_12
 #
 # sample makefile
 #
