@@ -42,6 +42,7 @@ void InnerKernel( int m, int n, int k, double *a, int lda,
       /* Update C( i,j ), C( i,j+1 ), C( i,j+2 ), and C( i,j+3 ) in
 	 one routine (four inner products) */
 
+      print_matrix( 4, k,   &A(i,0), lda);
       AddDot4x4( k, &A( i,0 ), lda, &B( 0,j ), ldb, &C( i,j ), ldc );
     }
   }

@@ -30,10 +30,13 @@ int main()
   
   printf( "MY_MMult = [\n" );
     
-  for ( p=PFIRST; p<=PLAST; p+=PINC ){
+  /* for ( p=PFIRST; p<=PLAST; p+=PINC ){ */
     m = ( M == -1 ? p : M );
     n = ( N == -1 ? p : N );
     k = ( K == -1 ? p : K );
+    m=8;
+    n=12;
+    k=8;
 
     gflops = 2.0 * m * n * k * 1.0e-09;
 
@@ -54,6 +57,9 @@ int main()
     random_matrix( m, k, a, lda );
     random_matrix( k, n, b, ldb );
     random_matrix( m, n, cold, ldc );
+    
+    print_matrix(m, k, a, lda);
+    print_matrix(k, n, b, ldb);
 
     copy_matrix( m, n, cold, ldc, cref, ldc );
 
@@ -80,17 +86,19 @@ int main()
 
     diff = compare_matrices( m, n, c, ldc, cref, ldc );
 
+    print_matrix(m, n, c, ldc);
+    print_matrix(m, n, cref, ldc);
     printf( "%d %le %le \n", p, gflops / dtime_best, diff );
-    fflush( stdout );
+    /* fflush( stdout ); */
 
     free( a );
     free( b );
     free( c );
     free( cold );
     free( cref );
-  }
+  /* } */
 
-  printf( "];\n" );
+  /* printf( "];\n" ); */
 
   exit( 0 );
 }

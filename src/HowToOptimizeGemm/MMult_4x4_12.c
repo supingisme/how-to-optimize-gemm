@@ -43,9 +43,16 @@ void InnerKernel( int m, int n, int k, double *a, int lda,
   for ( j=0; j<n; j+=4 ){        /* Loop over the columns of C, unrolled by 4 */
     for ( i=0; i<m; i+=4 ){        /* Loop over the rows of C */
       /* Update C( i,j ), C( i,j+1 ), C( i,j+2 ), and C( i,j+3 ) in
-	 one routine (four inner products) */
-      PackMatrixA( k, &A( i, 0 ), lda, &packedA[ i*k ] );
+	  one routine (four inner products) */
+        if(j==0){
+	        printf("origin: (%d,%d) \n", i, j);
+	        print_matrix( 4, k,   &A(i,0), lda);
+	        PackMatrixA( k, &A(i, 0), lda, &packedA[ i*k ] );
+	        printf("packedA: (4,%d) \n", k);
+	        print_matrix( k, 4,   &packedA[i*k], 4);
+        }
       AddDot4x4( k, &packedA[ i*k ], 4, &B( 0,j ), ldb, &C( i,j ), ldc );
+      /* AddDot4x4( k, &A( i,0 ), lda, &B( 0,j ), ldb, &C( i,j ), ldc ); */
     }
   }
 }
@@ -122,10 +129,10 @@ void AddDot4x4( int k, double *a, int lda,  double *b, int ldb, double *c, int l
     /* Point to the current elements in the four columns of B */
     *a_0p_pntr, *a_1p_pntr, *a_2p_pntr, *a_3p_pntr; 
     
-  a_0p_pntr = &A( 0, 0 );
-  a_1p_pntr = &A( 1, 0 );
-  a_2p_pntr = &A( 2, 0 );
-  a_3p_pntr = &A( 3, 0 );
+  /* a_0p_pntr = &A( 0, 0 ); */
+  /* a_1p_pntr = &A( 1, 0 ); */
+  /* a_2p_pntr = &A( 2, 0 ); */
+  /* a_3p_pntr = &A( 3, 0 ); */
 
   c_00_c_01_vreg =  vmovq_n_f64(0.f);
   c_02_c_03_vreg =  vmovq_n_f64(0.f);
@@ -141,11 +148,16 @@ void AddDot4x4( int k, double *a, int lda,  double *b, int ldb, double *c, int l
     b_p2_b_p3_vreg = vld1q_f64(&B(p,2));
 	
     
-    a_0p_vreg = vld1q_dup_f64(a_0p_pntr++);
-    a_1p_vreg = vld1q_dup_f64(a_1p_pntr++);
-    a_2p_vreg = vld1q_dup_f64(a_2p_pntr++);
-    a_3p_vreg = vld1q_dup_f64(a_3p_pntr++);
+    /* a_0p_vreg = vld1q_dup_f64(a_0p_pntr++); */
+    /* a_1p_vreg = vld1q_dup_f64(a_1p_pntr++); */
+    /* a_2p_vreg = vld1q_dup_f64(a_2p_pntr++); */
+    /* a_3p_vreg = vld1q_dup_f64(a_3p_pntr++); */
 
+    a_0p_vreg = vld1q_dup_f64(a);
+    a_1p_vreg = vld1q_dup_f64(a+1);
+    a_2p_vreg = vld1q_dup_f64(a+2);
+    a_3p_vreg = vld1q_dup_f64(a+3);
+    a += 4;
 
     /* First row and second rows */
     /* c_00_reg += a_0p_reg * b_p0_reg; */
