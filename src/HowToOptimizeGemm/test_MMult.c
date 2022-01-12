@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "parameters.h"
+#include "pmu_api.h"
 
 void REF_MMult(int, int, int, double *, int, double *, int, double *, int );
 void MY_MMult(int, int, int, double *, int, double *, int, double *, int );
@@ -10,7 +11,6 @@ void copy_matrix(int, int, double *, int, double *, int );
 void random_matrix(int, int, double *, int);
 double compare_matrices( int, int, double *, int, double *, int );
 
-double dclock();
 
 int main()
 {
@@ -23,11 +23,14 @@ int main()
   double
     dtime, dtime_best,        
     gflops, 
-    diff;
+    diff,
+    l1d_miss,ipc;
 
   double 
     *a, *b, *c, *cref, *cold;    
   
+  pmu_paras_t pmu_data;
+
   printf( "MY_MMult = [\n" );
     
   for ( p=PFIRST; p<=PLAST; p+=PINC ){
@@ -61,17 +64,19 @@ int main()
 
     REF_MMult( m, n, k, a, lda, b, ldb, cref, ldc );
 
+    init_pmu();
     /* Time the "optimized" implementation */
     for ( rep=0; rep<NREPEATS; rep++ ){
       copy_matrix( m, n, cold, ldc, c, ldc );
 
+      start_pmu();
       /* Time your implementation */
       dtime = dclock();
 
       MY_MMult( m, n, k, a, lda, b, ldb, c, ldc );
-      
       dtime = dclock() - dtime;
-
+      get_pmu(&pmu_data);
+      stop_pmu();
       if ( rep==0 )
 	dtime_best = dtime;
       else
@@ -79,8 +84,9 @@ int main()
     }
 
     diff = compare_matrices( m, n, c, ldc, cref, ldc );
-
-    printf( "%d %le %le \n", p, gflops / dtime_best, diff );
+    l1d_miss = (double)pmu_data.evt[3]/(double)pmu_data.evt[2];
+    ipc = (double)pmu_data.evt[0]/(double)pmu_data.evt[1];
+    printf( "%d %le %le %lld %.3f %.3f\n", p, gflops / dtime_best, diff, pmu_data.evt[0],ipc, l1d_miss);  
     fflush( stdout );
 
     free( a );
